@@ -1,0 +1,8 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: tiktoken in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (0.14.0)
+Requirement already satisfied: regex in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from tiktoken) (2026.9.29)
+Requirement already satisfied: requests in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from tiktoken) (2.34.2)
+Requirement already satisfied: charset_normalizer<4,>=2 in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from requests->tiktoken) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from requests->tiktoken) (3.19)
+Requirement already satisfied: urllib3<3,>=1.26 in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from requests->tiktoken) (2.7.0)
+Requirement already satisfied: certifi>=2023.5.7 in C:\Users\admin\AppData\Roaming\Python\Python313\site-packages (from requests->tiktoken) (2026.7.22)

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shift Roster</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 12h14M9 17h14M9 22h8' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============================= Top bar ============================= -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h10" />
+        </svg>
+      </span>
+      <span class="brand-name">Shift&nbsp;Roster</span>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab is-active" data-view="dashboard" role="tab" aria-selected="true">Dashboard</button>
+      <button class="tab" data-view="roster" role="tab" aria-selected="false">Roster</button>
+      <button class="tab" data-view="employees" role="tab" aria-selected="false">Employees</button>
+      <button class="tab" data-view="shifts" role="tab" aria-selected="false">Shifts</button>
+    </nav>
+
+    <div class="topbar-status" title="Backend connection">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Connecting…</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- ============================ Dashboard =========================== -->
+    <section class="view is-active" id="view-dashboard">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="segmented">
+            <button class="seg-btn" id="dash-prev" aria-label="Previous period">&#8249;</button>
+            <button class="seg-btn seg-btn--wide" id="dash-today">Today</button>
+            <button class="seg-btn" id="dash-next" aria-label="Next period">&#8250;</button>
+          </div>
+          <h2 class="range-label" id="dash-range-label">&nbsp;</h2>
+        </div>
+
+        <div class="toolbar-right">
+          <label class="field field--inline">
+            <span class="field-label">Period</span>
+            <select id="dash-period" class="input">
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi">
+          <div class="kpi-label">Active employees</div>
+          <div class="kpi-value" id="kpi-employees">&ndash;</div>
+          <div class="kpi-sub" id="kpi-employees-sub">&nbsp;</div>
+        </article>
+        <article class="kpi">
+          <div class="kpi-label">Shifts scheduled</div>
+          <div class="kpi-value" id="kpi-shifts">&ndash;</div>
+          <div class="kpi-sub" id="kpi-shifts-sub">&nbsp;</div>
+        </article>
+        <article class="kpi">
+          <div class="kpi-label">Hours scheduled</div>
+          <div class="kpi-value" id="kpi-hours">&ndash;</div>
+          <div class="kpi-sub" id="kpi-hours-sub">&nbsp;</div>
+        </article>
+        <article class="kpi">
+          <div class="kpi-label">Average progress</div>
+          <div class="kpi-value" id="kpi-progress">&ndash;</div>
+          <div class="bar bar--lg"><div class="bar-fill bar-fill--accent" id="kpi-progress-bar" style="width:0%"></div></div>
+          <div class="kpi-sub" id="kpi-progress-sub">&nbsp;</div>
+        </article>
+      </div>
+
+      <h3 class="section-title">Employee progress</h3>
+      <div class="panel">
+        <table class="data-table" id="progress-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Progress</th>
+              <th class="col-email">Shifts</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="progress-body"></tbody>
+        </table>
+        <div class="empty-state" id="progress-empty" hidden>
+          <div class="empty-icon">&#128200;</div>
+          <p class="empty-title">No employees yet</p>
+          <p class="empty-text">Add employees and roster them to start tracking progress.</p>
+          <button class="btn btn-primary" data-empty-action="employee">+ Add employee</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= Roster ============================= -->
+    <section class="view" id="view-roster">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="segmented">
+            <button class="seg-btn" id="prev-range" aria-label="Previous week">&#8249;</button>
+            <button class="seg-btn seg-btn--wide" id="today-btn">Today</button>
+            <button class="seg-btn" id="next-range" aria-label="Next week">&#8250;</button>
+          </div>
+          <h2 class="range-label" id="range-label">&nbsp;</h2>
+        </div>
+
+        <div class="toolbar-right">
+          <label class="field field--inline">
+            <span class="field-label">Employee</span>
+            <select id="employee-filter" class="input">
+              <option value="">All employees</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" id="open-assign">+ Assign shift</button>
+        </div>
+      </div>
+
+      <div class="panel grid-panel">
+        <div class="grid-scroll">
+          <table class="roster-grid" id="roster-grid">
+            <thead id="roster-head"></thead>
+            <tbody id="roster-body"></tbody>
+          </table>
+        </div>
+        <p class="grid-hint">Click an empty cell to assign a shift &middot; click a shift chip to remove it.</p>
+      </div>
+
+      <h3 class="section-title">Coverage</h3>
+      <div class="coverage" id="coverage"></div>
+    </section>
+
+    <!-- ============================ Employees =========================== -->
+    <section class="view" id="view-employees">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h2 class="range-label">Employees</h2>
+          <span class="count-badge" id="employees-count">0</span>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-primary" id="open-employee">+ Add employee</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <table class="data-table" id="employees-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th class="col-email">Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employees-body"></tbody>
+        </table>
+        <div class="empty-state" id="employees-empty" hidden>
+          <div class="empty-icon">&#9787;</div>
+          <p class="empty-title">No employees yet</p>
+          <p class="empty-text">Add your first employee to start building the roster.</p>
+          <button class="btn btn-primary" data-empty-action="employee">+ Add employee</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= Shifts ============================= -->
+    <section class="view" id="view-shifts">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h2 class="range-label">Shift templates</h2>
+          <span class="count-badge" id="shifts-count">0</span>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-primary" id="open-shift">+ Add shift</button>
+        </div>
+      </div>
+
+      <div class="shift-cards" id="shift-cards"></div>
+      <div class="panel" id="shifts-empty-panel">
+        <div class="empty-state" id="shifts-empty" hidden>
+          <div class="empty-icon">&#9200;</div>
+          <p class="empty-title">No shift templates</p>
+          <p class="empty-text">Define reusable shifts such as &ldquo;Morning 09:00&ndash;17:00&rdquo;.</p>
+          <button class="btn btn-primary" data-empty-action="shift">+ Add shift</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================== Modals ============================= -->
+  <div class="backdrop" id="employee-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="employee-modal-title">
+      <div class="modal-head">
+        <h3 id="employee-modal-title">Add employee</h3>
+        <button class="icon-btn" data-close aria-label="Close">&times;</button>
+      </div>
+      <form id="employee-form" class="modal-body">
+        <input type="hidden" name="id" />
+        <label class="field">
+          <span class="field-label">Full name</span>
+          <input class="input" name="name" required maxlength="80" placeholder="Alice Nguyen" />
+        </label>
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input class="input" type="email" name="email" required placeholder="alice@example.com" />
+        </label>
+        <label class="field">
+          <span class="field-label">Role</span>
+          <select class="input" name="role">
+            <option value="staff">Staff</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="manager">Manager</option>
+          </select>
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" name="is_active" checked />
+          <span class="switch" aria-hidden="true"></span>
+          <span class="switch-label">Active employee</span>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="backdrop" id="shift-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shift-modal-title">
+      <div class="modal-head">
+        <h3 id="shift-modal-title">Add shift</h3>
+        <button class="icon-btn" data-close aria-label="Close">&times;</button>
+      </div>
+      <form id="shift-form" class="modal-body">
+        <input type="hidden" name="id" />
+        <label class="field">
+          <span class="field-label">Shift name</span>
+          <input class="input" name="name" required maxlength="60" placeholder="Morning" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Starts</span>
+            <input class="input" type="time" name="start_time" required value="09:00" />
+          </label>
+          <label class="field">
+            <span class="field-label">Ends</span>
+            <input class="input" type="time" name="end_time" required value="17:00" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">Required staff</span>
+          <input class="input" type="number" name="required_staff" min="1" max="99" required value="1" />
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save shift</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="backdrop" id="assign-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="assign-modal-title">
+      <div class="modal-head">
+        <h3 id="assign-modal-title">Assign shift</h3>
+        <button class="icon-btn" data-close aria-label="Close">&times;</button>
+      </div>
+      <form id="assign-form" class="modal-body">
+        <label class="field">
+          <span class="field-label">Employee</span>
+          <select class="input" name="employee_id" required></select>
+        </label>
+        <label class="field">
+          <span class="field-label">Shift</span>
+          <select class="input" name="shift_id" required></select>
+        </label>
+        <label class="field">
+          <span class="field-label">Date</span>
+          <input class="input" type="date" name="date" required />
+        </label>
+        <p class="field-hint">Overlapping shifts for the same person on the same day are rejected by the API.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Assign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
